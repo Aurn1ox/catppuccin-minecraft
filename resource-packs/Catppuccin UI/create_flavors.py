@@ -28,11 +28,7 @@ from time import perf_counter as time_perf_counter
 from PIL import Image
 
 # CatppuccinColors classes
-from catppuccincolors import (
-    CatppuccinAccentColors,
-    CatppuccinFlavors,
-    get_flavor_colors)
-
+from catppuccin import PALETTE
 
 def main():
     templates_folder = PurePath('template')
@@ -142,41 +138,50 @@ def main():
             f'\'import_language_files.py\' script in the \'lang\' folder.')
         return
 
+    # Get all accent colors from the catppuccin palette library
+    accent_colors = [color.name for color in PALETTE.mocha.colors if color.accent == True]
+
+    # Create a map of red2 values since they don't exist in the catppuccin palette
+    red2 = {PALETTE.mocha.name: (181, 103, 125),
+            PALETTE.macchiato.name: (176, 100, 112),
+            PALETTE.frappe.name: (172, 97, 98),
+            PALETTE.latte.name: (156, 11, 42)}
+
     # Start to generate different flavors and accent colors from the template.
-    for flavor in CatppuccinFlavors.all():
+    for flavor_obj in PALETTE:
+        flavor = flavor_obj.name
         print(f'\nStarting to create flavor {flavor} from template {template_version}!\n')
+
         
-        # Get correct color values depending on flavor.
-        flavor_colors = get_flavor_colors(flavor)
         # Create color map for current flavor.
         color_map = {
-            (17, 17, 27): flavor_colors.crust,
-            (24, 24, 37): flavor_colors.mantle,
-            (30, 30, 46): flavor_colors.base,
-            (49, 50, 68): flavor_colors.surface0,
-            (69, 71, 90): flavor_colors.surface1,
-            (88, 91, 112): flavor_colors.surface2,
-            (108, 112, 134): flavor_colors.overlay0,
-            (127, 132, 156): flavor_colors.overlay1,
-            (147, 153, 178): flavor_colors.overlay2,
-            (166, 173, 200): flavor_colors.subtext0,
-            (186, 194, 222): flavor_colors.subtext1,
-            (205, 214, 244): flavor_colors.text,
-            (180, 190, 254): flavor_colors.lavender,
-            (137, 180, 250): flavor_colors.blue,
-            (116, 199, 236): flavor_colors.sapphire,
-            (137, 220, 235): flavor_colors.sky,
-            (148, 226, 213): flavor_colors.teal,
-            (166, 227, 161): flavor_colors.green,
-            (249, 226, 175): flavor_colors.yellow,
-            (250, 179, 135): flavor_colors.peach,
-            (235, 160, 172): flavor_colors.maroon,
-            (243, 139, 168): flavor_colors.red,
-            (181, 103, 125): flavor_colors.red2,
-            (203, 166, 247): flavor_colors.mauve,
-            (245, 194, 231): flavor_colors.pink,
-            (242, 205, 205): flavor_colors.flamingo,
-            (245, 224, 220): flavor_colors.rosewater}
+            (17, 17, 27): rgb_to_tuple(flavor_obj.colors.crust.rgb),
+            (24, 24, 37): rgb_to_tuple(flavor_obj.colors.mantle.rgb),
+            (30, 30, 46): rgb_to_tuple(flavor_obj.colors.base.rgb),
+            (49, 50, 68): rgb_to_tuple(flavor_obj.colors.surface0.rgb),
+            (69, 71, 90): rgb_to_tuple(flavor_obj.colors.surface1.rgb),
+            (88, 91, 112): rgb_to_tuple(flavor_obj.colors.surface2.rgb),
+            (108, 112, 134): rgb_to_tuple(flavor_obj.colors.overlay0.rgb),
+            (127, 132, 156): rgb_to_tuple(flavor_obj.colors.overlay1.rgb),
+            (147, 153, 178): rgb_to_tuple(flavor_obj.colors.overlay2.rgb),
+            (166, 173, 200): rgb_to_tuple(flavor_obj.colors.subtext0.rgb),
+            (186, 194, 222): rgb_to_tuple(flavor_obj.colors.subtext1.rgb),
+            (205, 214, 244): rgb_to_tuple(flavor_obj.colors.text.rgb),
+            (180, 190, 254): rgb_to_tuple(flavor_obj.colors.lavender.rgb),
+            (137, 180, 250): rgb_to_tuple(flavor_obj.colors.blue.rgb),
+            (116, 199, 236): rgb_to_tuple(flavor_obj.colors.sapphire.rgb),
+            (137, 220, 235): rgb_to_tuple(flavor_obj.colors.sky.rgb),
+            (148, 226, 213): rgb_to_tuple(flavor_obj.colors.teal.rgb),
+            (166, 227, 161): rgb_to_tuple(flavor_obj.colors.green.rgb),
+            (249, 226, 175): rgb_to_tuple(flavor_obj.colors.yellow.rgb),
+            (250, 179, 135): rgb_to_tuple(flavor_obj.colors.peach.rgb),
+            (235, 160, 172): rgb_to_tuple(flavor_obj.colors.maroon.rgb),
+            (243, 139, 168): rgb_to_tuple(flavor_obj.colors.red.rgb),
+            (181, 103, 125): red2[flavor_obj.name],
+            (203, 166, 247): rgb_to_tuple(flavor_obj.colors.mauve.rgb),
+            (245, 194, 231): rgb_to_tuple(flavor_obj.colors.pink.rgb),
+            (242, 205, 205): rgb_to_tuple(flavor_obj.colors.flamingo.rgb),
+            (245, 224, 220): rgb_to_tuple(flavor_obj.colors.rosewater.rgb)}
 
         # Creating a temporary template for each flavor which is used later on just to change the accent colors.
         print(f'Starting to create a temporary template for {flavor}!\n')
@@ -208,7 +213,7 @@ def main():
                         shutil_copy2(texture_path, PurePath(dirpath, filename))
                         os_remove(PurePath(dirpath, old_filename))
                     elif '$accent_color$' in filename:
-                        for accent in CatppuccinAccentColors.all():
+                        for accent in accent_colors:
                             new_filename = filename.replace('$accent_color$', f'${accent.lower()}$')
                             texture_path = PurePath(*path_list, new_filename)
                             if isfile(texture_path):
@@ -346,16 +351,16 @@ def main():
                                 if '<value>' in template_value:
                                     if '<text_color>' in template_value:
                                         template_value = template_value.replace(
-                                            '<text_color>', flavor_colors.text_color)
+                                            '<text_color>', '§f')
                                     elif '<green_text_color>' in template_value:
                                         template_value = template_value.replace(
-                                            '<green_text_color>', flavor_colors.green_text_color)
+                                            '<green_text_color>', '§a')
                                     elif '<yellow_text_color>' in template_value:
                                         template_value = template_value.replace(
-                                            '<yellow_text_color>', flavor_colors.yellow_text_color)
+                                            '<yellow_text_color>', '§e')
                                     elif '<purple_text_color>' in template_value:
                                         template_value = template_value.replace(
-                                            '<purple_text_color>', flavor_colors.purple_text_color)
+                                            '<purple_text_color>', '§d')
                                     template_copy[key] = template_value.replace('<value>', value)
                                 else:
                                     template_copy[key] = ''
@@ -385,40 +390,40 @@ def main():
         print(f'Temporary template for flavor {flavor} is ready!\n')
 
         # Generate resource packs for each accent color from the temporary template of flavor created earlier.
-        for color in CatppuccinAccentColors.all():
+        for color in accent_colors:
             print(f'Starting to create flavor {flavor} with accent color {color}!')
 
             version_folder = PurePath(output_folder, f'Catppuccin {flavor} {color}')
 
             # Create color map for current accent color.
-            if color == CatppuccinAccentColors.lavender:
-                accent_color = flavor_colors.lavender
-            elif color == CatppuccinAccentColors.blue:
-                accent_color = flavor_colors.blue
-            elif color == CatppuccinAccentColors.sapphire:
-                accent_color = flavor_colors.sapphire
-            elif color == CatppuccinAccentColors.sky:
-                accent_color = flavor_colors.sky
-            elif color == CatppuccinAccentColors.teal:
-                accent_color = flavor_colors.teal
-            elif color == CatppuccinAccentColors.green:
-                accent_color = flavor_colors.green
-            elif color == CatppuccinAccentColors.yellow:
-                accent_color = flavor_colors.yellow
-            elif color == CatppuccinAccentColors.peach:
-                accent_color = flavor_colors.peach
-            elif color == CatppuccinAccentColors.maroon:
-                accent_color = flavor_colors.maroon
-            elif color == CatppuccinAccentColors.red:
-                accent_color = flavor_colors.red
-            elif color == CatppuccinAccentColors.mauve:
-                accent_color = flavor_colors.mauve
-            elif color == CatppuccinAccentColors.pink:
-                accent_color = flavor_colors.pink
-            elif color == CatppuccinAccentColors.flamingo:
-                accent_color = flavor_colors.flamingo
+            if color == flavor_obj.colors.lavender.name:
+                accent_color = rgb_to_tuple(flavor_obj.colors.lavender.rgb)
+            elif color == flavor_obj.colors.blue.name:
+                accent_color = rgb_to_tuple(flavor_obj.colors.blue.rgb)
+            elif color == flavor_obj.colors.sapphire.name:
+                accent_color = rgb_to_tuple(flavor_obj.colors.sapphire.rgb)
+            elif color == flavor_obj.colors.sky.name:
+                accent_color = rgb_to_tuple(flavor_obj.colors.sky.rgb)
+            elif color == flavor_obj.colors.teal.name:
+                accent_color = rgb_to_tuple(flavor_obj.colors.teal.rgb)
+            elif color == flavor_obj.colors.green.name:
+                accent_color = rgb_to_tuple(flavor_obj.colors.green.rgb)
+            elif color == flavor_obj.colors.yellow.name:
+                accent_color = rgb_to_tuple(flavor_obj.colors.yellow.rgb)
+            elif color == flavor_obj.colors.peach.name:
+                accent_color = rgb_to_tuple(flavor_obj.colors.peach.rgb)
+            elif color == flavor_obj.colors.maroon.name:
+                accent_color = rgb_to_tuple(flavor_obj.colors.maroon.rgb)
+            elif color == flavor_obj.colors.red.name:
+                accent_color = rgb_to_tuple(flavor_obj.colors.red.rgb)
+            elif color == flavor_obj.colors.mauve.name:
+                accent_color = rgb_to_tuple(flavor_obj.colors.mauve.rgb)
+            elif color == flavor_obj.colors.pink.name:
+                accent_color = rgb_to_tuple(flavor_obj.colors.pink.rgb)
+            elif color == flavor_obj.colors.flamingo.name:
+                accent_color = rgb_to_tuple(flavor_obj.colors.flamingo.rgb)
             else:
-                accent_color = flavor_colors.rosewater
+                accent_color = rgb_to_tuple(flavor_obj.colors.rosewater.rgb)
 
             accent_color_map = {(255, 0, 0): accent_color}
 
@@ -510,6 +515,9 @@ def main():
         f'Completed in {minutes} minutes and {seconds} seconds.\n'
         f'You may close this window now!')
     return
+
+def rgb_to_tuple(colorRGB):
+    return (colorRGB.r, colorRGB.g, colorRGB.b)
 
 
 if __name__ == '__main__':
