@@ -42,7 +42,7 @@ Adding support for new mods in Catppuccin UI is temporarily paused. I plan to ad
 ## 💝 Thanks to
 
 - [Tnixc](https://github.com/Tnixc)
-- [Aurniox](https://github.com/Aurn1ox)
+- [Aurniox](https://github.com/madhavarun)
 - [CallMeEcho](https://github.com/CallMeEchoCodes)
 - [Locotay](https://github.com/andreasgrafen)
 - [JustLetterV](https://github.com/JustLetterV)
