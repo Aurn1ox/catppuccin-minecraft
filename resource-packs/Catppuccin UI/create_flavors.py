@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 
 # Standard imports
+from colorsys import (
+    rgb_to_hls,
+    hls_to_rgb)
 from json import (
     dump as json_dump,
     load as json_load)
@@ -142,10 +145,10 @@ def main():
     accent_colors = [color.name for color in PALETTE.mocha.colors if color.accent == True]
 
     # Create a map of red2 values since they don't exist in the catppuccin palette
-    red2 = {PALETTE.mocha.name: (181, 103, 125),
-            PALETTE.macchiato.name: (176, 100, 112),
-            PALETTE.frappe.name: (172, 97, 98),
-            PALETTE.latte.name: (156, 11, 42)}
+    red2 = {PALETTE.mocha.name: darker_red(PALETTE.mocha.colors.red.hsl),
+            PALETTE.macchiato.name: darker_red(PALETTE.macchiato.colors.red.hsl),
+            PALETTE.frappe.name: darker_red(PALETTE.frappe.colors.red.hsl),
+            PALETTE.latte.name: darker_red(PALETTE.latte.colors.red.hsl)}
 
     # Start to generate different flavors and accent colors from the template.
     for flavor_obj in PALETTE:
@@ -519,6 +522,11 @@ def main():
 def rgb_to_tuple(colorRGB):
     return (colorRGB.r, colorRGB.g, colorRGB.b)
 
+# Applies a -26% lightness adjustment to the color
+def darker_red(colorRGB):
+    hls_tuple = rgb_to_hls(*rgb_to_tuple(colorRGB))
+    red2_hls_tuple = (hls_tuple[0], hls_tuple[1] * 0.74, hls_tuple[2])
+    return tuple(round(i) for i in hls_to_rgb(*red2_hls_tuple))
 
 if __name__ == '__main__':
     main()
