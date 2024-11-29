@@ -351,16 +351,16 @@ def main():
                                 if '<value>' in template_value:
                                     if '<text_color>' in template_value:
                                         template_value = template_value.replace(
-                                            '<text_color>', '§f')
+                                            '<text_color>', '§8' if flavor_obj is PALETTE.latte else '§f')
                                     elif '<green_text_color>' in template_value:
                                         template_value = template_value.replace(
-                                            '<green_text_color>', '§a')
+                                            '<green_text_color>', '§2' if flavor_obj is PALETTE.latte else '§a')
                                     elif '<yellow_text_color>' in template_value:
                                         template_value = template_value.replace(
-                                            '<yellow_text_color>', '§e')
+                                            '<yellow_text_color>', '§6' if flavor_obj is PALETTE.latte else '§e')
                                     elif '<purple_text_color>' in template_value:
                                         template_value = template_value.replace(
-                                            '<purple_text_color>', '§d')
+                                            '<purple_text_color>', '§5' if flavor_obj is PALETTE.latte else '§d')
                                     template_copy[key] = template_value.replace('<value>', value)
                                 else:
                                     template_copy[key] = ''
